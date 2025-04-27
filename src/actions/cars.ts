@@ -6,10 +6,10 @@ import { fetchWrapper } from "@/helper/fetchWrapper";
 //   return response;
 // };
 
-export const getAllCarsByLimit = async (page = 1) => {
+export const getAllCarsByLimit = async (page = 1, search = "") => {
   const response: any = await fetchWrapper.GET(
     true,
-    `cars?page=${page}&limit=${LIMIT}`
+    `cars?page=${page}&limit=${LIMIT}&search=${search}`
   );
   return response;
 };

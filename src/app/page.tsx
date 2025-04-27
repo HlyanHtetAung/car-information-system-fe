@@ -4,9 +4,10 @@ import { getAllCarsByLimit, getModelsAndBrandsCount } from "@/actions/cars";
 import CarFormModal from "@/components/common/modals/CarFormModal";
 import DeleteCarModal from "@/components/common/modals/DeleteCarModal";
 import { LIMIT } from "@/constants";
-import { Space, Table, Tag, Button, message } from "antd";
+import { Space, Table, Button, Input } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+const { Search } = Input;
 
 export default function Home() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function Home() {
   const [selectedCar, setSelectedCar] = useState();
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [allCars, setAllCars] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -27,9 +29,9 @@ export default function Home() {
   const [brandCount, setBrandCount] = useState(0);
   const [modelCount, setModelCount] = useState(0);
 
-  const fetchAllCars = async (page = 1) => {
+  const fetchAllCars = async (page = 1, search = "") => {
     try {
-      const response = await getAllCarsByLimit(page);
+      const response = await getAllCarsByLimit(page, search);
 
       setAllCars(response.data.data);
       setPagination({
@@ -121,7 +123,12 @@ export default function Home() {
 
   // fetch brands pagination
   const handleTableChange = (pagination: any) => {
+    setPagination;
     fetchAllCars(pagination.current);
+  };
+
+  const onSearch = (value: any) => {
+    fetchAllCars(1, value);
   };
 
   useEffect(() => {
@@ -148,13 +155,28 @@ export default function Home() {
               <p className="text-gray-400 font-semibold">
                 Please add model first
               </p>
-
               <Button type="primary" onClick={() => router.push("/carModels")}>
                 Go to Models Page
               </Button>
             </div>
           ) : null}
-
+          <Button
+            type="primary"
+            onClick={() => {
+              fetchAllCars();
+              setSearchValue("");
+            }}
+            disabled={brandCount == 0 || modelCount == 0}
+          >
+            Remove Filter
+          </Button>
+          <Search
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Search by registration no"
+            onSearch={onSearch}
+            style={{ width: 400 }}
+          />
           <Button
             type="primary"
             onClick={showModal}
