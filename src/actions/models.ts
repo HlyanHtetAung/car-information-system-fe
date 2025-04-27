@@ -1,7 +1,16 @@
+import { LIMIT } from "@/constants";
 import { fetchWrapper } from "@/helper/fetchWrapper";
 
 export const getAllModels = async () => {
-  const response: any = await fetchWrapper.GET(true, "models");
+  const response: any = await fetchWrapper.GET(true, "models/all");
+  return response;
+};
+
+export const getAllModelsByLimit = async (page = 1) => {
+  const response: any = await fetchWrapper.GET(
+    true,
+    `models?page=${page}&limit=${LIMIT}`
+  );
   return response;
 };
 

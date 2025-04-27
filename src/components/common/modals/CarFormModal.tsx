@@ -60,10 +60,10 @@ function CarFormModal({
 
     try {
       if (selectedCar && isEditCarDetail) {
-        const response = await updateCar(selectedCar.id, payload);
+        await updateCar(selectedCar.id, payload);
         messageApi.success("Car data is successfully edited");
       } else {
-        const response = await createNewCar(payload);
+        await createNewCar(payload);
         messageApi.success("New car data is successfully added");
       }
       fetchAllCars();

@@ -1,11 +1,12 @@
 "use client";
 
 import { getModelsAndBrandsCount } from "@/actions/cars";
-import { getAllModels } from "@/actions/models";
+import { getAllModels, getAllModelsByLimit } from "@/actions/models";
 import ModelFormModal from "@/components/common/modals/ModelFormModal";
 import { Space, Table, Button } from "antd";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { LIMIT } from "@/constants";
 
 export default function CarModels() {
   const router = useRouter();
@@ -16,12 +17,26 @@ export default function CarModels() {
   const [allModels, setAllModels] = useState([]);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [brandCount, setBrandCount] = useState(0);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 5,
+    total: 0,
+  });
 
-  const fetchAllModels = async () => {
+  const fetchAllModels = async (page = 1) => {
     try {
-      const response = await getAllModels();
-      setAllModels(response.data);
-    } catch (error) {}
+      const response = await getAllModelsByLimit(page);
+
+      setAllModels(response.data.data);
+
+      setPagination({
+        current: page,
+        pageSize: LIMIT,
+        total: response.data.total,
+      });
+    } catch (error) {
+      console.log("Failed to fetch brands");
+    }
   };
 
   // Cols definiton for car models table
@@ -77,6 +92,11 @@ export default function CarModels() {
     showModal();
   };
 
+  // fetch brands pagination
+  const handleTableChange = (pagination: any) => {
+    fetchAllModels(pagination.current);
+  };
+
   useEffect(() => {
     fetchAllModels();
     checkBrandsAndModelsExist();
@@ -114,6 +134,8 @@ export default function CarModels() {
         dataSource={allModels}
         rowKey={"id"}
         scroll={{ x: "max-content" }}
+        pagination={pagination}
+        onChange={handleTableChange}
       />
 
       <ModelFormModal
