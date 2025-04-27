@@ -1,9 +1,9 @@
 "use client";
 
-import { getAllBrands } from "@/actions/brands";
+import { getAllBrandsByLimit } from "@/actions/brands";
 import BrandFormModal from "@/components/common/modals/BrandFormModal";
 import { LIMIT } from "@/constants";
-import { Space, Table, Tag, Button } from "antd";
+import { Space, Table, Button } from "antd";
 import { useEffect, useState } from "react";
 
 export default function Brands() {
@@ -22,7 +22,7 @@ export default function Brands() {
 
   const fetchAllBrands = async (page = 1) => {
     try {
-      const response = await getAllBrands(page);
+      const response = await getAllBrandsByLimit(page);
       setAllBrands(response.data.data);
       setPagination({
         current: page,

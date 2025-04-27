@@ -1,14 +1,12 @@
 import { LIMIT } from "@/constants";
 import { fetchWrapper } from "@/helper/fetchWrapper";
 
-export const getAllBrands = async (page = 1, isAll = false) => {
-  if (isAll == true) {
-    const response: any = await fetchWrapper.GET(
-      true,
-      `brands?page=${page}&limit=${LIMIT}`
-    );
-    return response;
-  }
+export const getAllBrands = async (page = 1) => {
+  const response: any = await fetchWrapper.GET(true, `brands/all`);
+  return response;
+};
+
+export const getAllBrandsByLimit = async (page = 1) => {
   const response: any = await fetchWrapper.GET(
     true,
     `brands?page=${page}&limit=${LIMIT}`
