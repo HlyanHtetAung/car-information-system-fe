@@ -1,11 +1,8 @@
 "use client";
 
-import { createBrand, getAllBrands, updateBrand } from "@/actions/brands";
-import { createNewCar, updateCar } from "@/actions/cars";
-import { getAllModels } from "@/actions/models";
-import { Button, Input, Modal, Select } from "antd";
-import TextArea from "antd/es/input/TextArea";
-import React, { useEffect, useState } from "react";
+import { createBrand, updateBrand } from "@/actions/brands";
+import { Button, Input, Modal } from "antd";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { message } from "antd";
 
@@ -79,7 +76,7 @@ function BrandFormModal({
 
   return (
     <Modal
-      title="Create New Brand"
+      title={selectedBrand && isEditBrand ? "Edit Brand" : "Create New Brand"}
       open={open}
       onOk={handleOk}
       confirmLoading={confirmLoading}

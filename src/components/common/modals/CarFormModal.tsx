@@ -6,7 +6,7 @@ import {
   createNewCar,
   updateCar,
 } from "@/actions/cars";
-import { getAllModels } from "@/actions/models";
+import { getAllModels, getModelsByBrand } from "@/actions/models";
 import { Button, Input, Modal, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import React, { useEffect, useState } from "react";
@@ -52,11 +52,17 @@ function CarFormModal({
     const { registrationNumber, brandId, modelId, year, color, price, notes } =
       data;
 
-    const response = await checkRegistartionNumberExist({ registrationNumber });
-    if (response.data == true) {
-      messageApi.error("Registartion number is already exist");
-      return;
+    // check register number is exist only on create
+    if (!(selectedCar && isEditCarDetail)) {
+      const response = await checkRegistartionNumberExist({
+        registrationNumber,
+      });
+      if (response.data == true) {
+        messageApi.error("Registartion number is already exist");
+        return;
+      }
     }
+
     const payload = {
       registrationNumber,
       brandId,
@@ -102,9 +108,10 @@ function CarFormModal({
     } catch (error) {}
   };
 
-  const fetchAllModels = async () => {
+  const fetchModelsByBrand = async (brandId: number) => {
     try {
-      const response = await getAllModels();
+      const response = await getModelsByBrand(brandId);
+      console.log("*** respnose data ***", response.data);
       setAllModels(response.data);
     } catch (error) {}
   };
@@ -124,12 +131,12 @@ function CarFormModal({
 
   useEffect(() => {
     fetchAllBrands();
-    fetchAllModels();
+    // fetchAllModels();
   }, []);
 
   return (
     <Modal
-      title="Create New Car"
+      title={selectedCar && isEditCarDetail ? "Edit Car" : "Add New Car"}
       open={open}
       onOk={handleOk}
       confirmLoading={confirmLoading}
@@ -182,7 +189,11 @@ function CarFormModal({
                   label: brand.name,
                   value: brand.id,
                 }))}
-                onChange={(value) => field.onChange(value)}
+                onChange={(value) => {
+                  setValue("modelId", "");
+                  fetchModelsByBrand(+value);
+                  field.onChange(value);
+                }}
               />
             )}
           />

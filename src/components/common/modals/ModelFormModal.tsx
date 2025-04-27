@@ -87,7 +87,7 @@ function ModelFormModal({
 
   return (
     <Modal
-      title="Create New Model"
+      title={selectedModel && isEditModel ? "Edit Model" : "Create New Model"}
       open={open}
       confirmLoading={confirmLoading}
       onCancel={resetValue}

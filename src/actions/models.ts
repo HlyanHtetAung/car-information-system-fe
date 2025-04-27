@@ -6,6 +6,14 @@ export const getAllModels = async () => {
   return response;
 };
 
+export const getModelsByBrand = async (brandId: number) => {
+  const response: any = await fetchWrapper.GET(
+    true,
+    `models/by-brand/${brandId}`
+  );
+  return response;
+};
+
 export const getAllModelsByLimit = async (page = 1) => {
   const response: any = await fetchWrapper.GET(
     true,

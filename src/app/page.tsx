@@ -166,7 +166,6 @@ export default function Home() {
               fetchAllCars();
               setSearchValue("");
             }}
-            disabled={brandCount == 0 || modelCount == 0}
           >
             Remove Filter
           </Button>
