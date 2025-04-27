@@ -1,8 +1,9 @@
 "use client";
 
-import { getAllCars, getModelsAndBrandsCount } from "@/actions/cars";
+import { getAllCarsByLimit, getModelsAndBrandsCount } from "@/actions/cars";
 import CarFormModal from "@/components/common/modals/CarFormModal";
 import DeleteCarModal from "@/components/common/modals/DeleteCarModal";
+import { LIMIT } from "@/constants";
 import { Space, Table, Tag, Button, message } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,15 +17,29 @@ export default function Home() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [allCars, setAllCars] = useState([]);
 
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 5,
+    total: 0,
+  });
+
   // to track brand data and model is exist before createing car data
   const [brandCount, setBrandCount] = useState(0);
   const [modelCount, setModelCount] = useState(0);
 
-  const fetchAllCars = async () => {
+  const fetchAllCars = async (page = 1) => {
     try {
-      const response = await getAllCars();
-      setAllCars(response.data);
-    } catch (error) {}
+      const response = await getAllCarsByLimit(page);
+
+      setAllCars(response.data.data);
+      setPagination({
+        current: page,
+        pageSize: LIMIT,
+        total: response.data.total,
+      });
+    } catch (error) {
+      console.log("Failed to fetch brands");
+    }
   };
 
   const checkBrandsAndModelsExist = async () => {
@@ -104,6 +119,11 @@ export default function Home() {
     showModal();
   };
 
+  // fetch brands pagination
+  const handleTableChange = (pagination: any) => {
+    fetchAllCars(pagination.current);
+  };
+
   useEffect(() => {
     fetchAllCars();
     checkBrandsAndModelsExist();
@@ -150,6 +170,8 @@ export default function Home() {
         dataSource={allCars}
         rowKey={"registrationNumber"}
         scroll={{ x: "max-content" }}
+        pagination={pagination}
+        onChange={handleTableChange}
       />
 
       {/* Modals */}

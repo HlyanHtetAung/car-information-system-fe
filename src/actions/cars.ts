@@ -1,9 +1,19 @@
+import { LIMIT } from "@/constants";
 import { fetchWrapper } from "@/helper/fetchWrapper";
 
-export const getAllCars = async () => {
-  const response: any = await fetchWrapper.GET(true, "cars");
+// export const getAllCars = async () => {
+//   const response: any = await fetchWrapper.GET(true, "cars/all");
+//   return response;
+// };
+
+export const getAllCarsByLimit = async (page = 1) => {
+  const response: any = await fetchWrapper.GET(
+    true,
+    `cars?page=${page}&limit=${LIMIT}`
+  );
   return response;
 };
+
 export const getModelsAndBrandsCount = async () => {
   const response: any = await fetchWrapper.GET(
     true,
