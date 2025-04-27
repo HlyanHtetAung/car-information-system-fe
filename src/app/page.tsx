@@ -1,103 +1,179 @@
-import Image from "next/image";
+"use client";
+
+import { getAllCars, getModelsAndBrandsCount } from "@/actions/cars";
+import CarFormModal from "@/components/common/modals/CarFormModal";
+import DeleteCarModal from "@/components/common/modals/DeleteCarModal";
+import { Space, Table, Tag, Button, message } from "antd";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
+  const [open, setOpen] = useState(false); // for carFormModal
+  const [openDeleteModal, setOpenDeleteModal] = useState(false); // for carFormModal
+  const [isEditCarDetail, setIsEditCarDetail] = useState(false);
+  const [selectedCar, setSelectedCar] = useState();
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [allCars, setAllCars] = useState([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // to track brand data and model is exist before createing car data
+  const [brandCount, setBrandCount] = useState(0);
+  const [modelCount, setModelCount] = useState(0);
+
+  const fetchAllCars = async () => {
+    try {
+      const response = await getAllCars();
+      setAllCars(response.data);
+    } catch (error) {}
+  };
+
+  const checkBrandsAndModelsExist = async () => {
+    const response = await getModelsAndBrandsCount();
+    const { brandCount, modelCount } = response.data;
+    setBrandCount(brandCount);
+    setModelCount(modelCount);
+  };
+
+  // Cols definiton for cars table
+  const columns = [
+    {
+      title: "Registration Number",
+      dataIndex: "registrationNumber",
+      render: (text: any) => <p>{text}</p>,
+    },
+    {
+      title: "Brand",
+      dataIndex: "brand",
+      render: (data: any) => <p>{data.name}</p>,
+    },
+    {
+      title: "Modal",
+      dataIndex: "model",
+      render: (data: any) => <p>{data.name}</p>,
+    },
+    {
+      title: "Year",
+      dataIndex: "year",
+      render: (data: any) => <p>{data}</p>,
+    },
+    {
+      title: "Color",
+      dataIndex: "color",
+      render: (data: any) => <p>{data}</p>,
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      render: (data: any) => <p>{data}</p>,
+    },
+    {
+      title: "Notes",
+      dataIndex: "notes",
+      render: (data: any) => <p>{data}</p>,
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (data: any) => (
+        <Space size="middle">
+          <Button onClick={() => selectCarHandle(data)}>Edit</Button>
+          <Button
+            onClick={() => showDeleteModal(data)}
+            color="danger"
+            variant="outlined"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const showDeleteModal = (data: any) => {
+    setOpenDeleteModal(true);
+    setSelectedCar(data);
+  };
+
+  const selectCarHandle = (data: any) => {
+    setSelectedCar(data);
+    setIsEditCarDetail(true);
+    showModal();
+  };
+
+  useEffect(() => {
+    fetchAllCars();
+    checkBrandsAndModelsExist();
+  }, []);
+
+  return (
+    <div className="bg-grey-500 flex-1 p-[30px]">
+      <div className="flex items-center justify-between my-[20px]">
+        <h3 className="text-lg font-bold">Cars List</h3>
+        <div className="flex items-center gap-[10px]">
+          {brandCount == 0 ? (
+            <div className="flex gap-[5px] items-center">
+              <p className="text-gray-400 font-semibold">
+                Please add brand first
+              </p>
+              <Button type="primary" onClick={() => router.push("/brands")}>
+                Go to Brand Page
+              </Button>
+            </div>
+          ) : brandCount > 0 && modelCount == 0 ? (
+            <div className="flex items-center gap-[10px]">
+              <p className="text-gray-400 font-semibold">
+                Please add model first
+              </p>
+
+              <Button type="primary" onClick={() => router.push("/carModels")}>
+                Go to Models Page
+              </Button>
+            </div>
+          ) : null}
+
+          <Button
+            type="primary"
+            onClick={showModal}
+            disabled={brandCount == 0 || modelCount == 0}
           >
-            Read our docs
-          </a>
+            Add New Car
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <Table
+        columns={columns}
+        dataSource={allCars}
+        rowKey={"registrationNumber"}
+        scroll={{ x: "max-content" }}
+      />
+
+      {/* Modals */}
+      <CarFormModal
+        setConfirmLoading={setConfirmLoading}
+        setOpen={setOpen}
+        open={open}
+        confirmLoading={confirmLoading}
+        isEditCarDetail={isEditCarDetail}
+        selectedCar={selectedCar}
+        setSelectedCar={setSelectedCar}
+        setIsEditCarDetail={setIsEditCarDetail}
+        fetchAllCars={fetchAllCars}
+      />
+
+      <DeleteCarModal
+        setConfirmLoading={setConfirmLoading}
+        setOpen={setOpenDeleteModal}
+        open={openDeleteModal}
+        // confirmLoading={confirmLoading}
+        selectedCar={selectedCar}
+        setSelectedCar={setSelectedCar}
+        fetchAllCars={fetchAllCars}
+      />
     </div>
   );
 }
