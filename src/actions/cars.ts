@@ -27,6 +27,15 @@ export const createNewCar = async (payload: any) => {
   return response;
 };
 
+export const checkRegistartionNumberExist = async (payload: any) => {
+  const response: any = await fetchWrapper.POST(
+    true,
+    "cars/check-registration-number",
+    payload
+  );
+  return response;
+};
+
 export const updateCar = async (id: number, payload: any) => {
   const response: any = await fetchWrapper.PATCH(true, `cars/${id}`, payload);
   return response;

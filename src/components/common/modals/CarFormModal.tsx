@@ -1,7 +1,11 @@
 "use client";
 
 import { getAllBrands } from "@/actions/brands";
-import { createNewCar, updateCar } from "@/actions/cars";
+import {
+  checkRegistartionNumberExist,
+  createNewCar,
+  updateCar,
+} from "@/actions/cars";
 import { getAllModels } from "@/actions/models";
 import { Button, Input, Modal, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
@@ -48,6 +52,11 @@ function CarFormModal({
     const { registrationNumber, brandId, modelId, year, color, price, notes } =
       data;
 
+    const response = await checkRegistartionNumberExist({ registrationNumber });
+    if (response.data == true) {
+      messageApi.error("Registartion number is already exist");
+      return;
+    }
     const payload = {
       registrationNumber,
       brandId,
